@@ -2,13 +2,16 @@ package com.example.myframework.net;
 
 import java.util.Map;
 
+import com.android.volley.Request.Method;
+
 /**
  * 所有的请求需要的数据都归于这个类中
  * 
  */
 public class RequestVo {
-	public enum RequestMethod {
-		GET, POST
+
+	public enum RequestForWhat {
+		STRING, GSON, XML, JSON
 	}
 
 	/**
@@ -30,29 +33,50 @@ public class RequestVo {
 	 */
 	public Map<String, String> requestHeaders;
 	/**
-	 * 请求方法
+	 * 请求方法(注意是volley包下的Method枚举值)<br>
+	 * Method.GET/Method.POST
 	 */
-	public RequestMethod method;
+	public int method;
+	/**
+	 * 请求想得到什么类型的数据：STRING, GSON, XML, JSON
+	 */
+	public RequestForWhat requestForWhat;
+	private CallBack callBack;
+
+	public CallBack getCallBack() {
+		return callBack;
+	}
+
+	public void setCallBack(CallBack callBack) {
+		this.callBack = callBack;
+	}
 
 	/**
 	 * ·
 	 * 
 	 * @param url
 	 *            只是传递url，默认为GET方法
+	 * @param RequestForWhat
+	 *            请求的目的是获取什么类型的数据（STRING, GSON, XML, JSON）
 	 */
-	public RequestVo(String url) {
+	public RequestVo(String url, RequestForWhat requestForWhat) {
 		this.url = url;
-		this.method = RequestMethod.GET;
+		this.requestForWhat = requestForWhat;
+		this.method = Method.GET;
 	}
 
 	/**
+	 * 
 	 * @param url
 	 *            请求地址
 	 * @param method
 	 *            请求方法
+	 * @param RequestForWhat
+	 *            请求的目的是获取什么类型的数据（STRING, GSON, XML, JSON）
 	 */
-	public RequestVo(String url, RequestMethod method) {
+	public RequestVo(String url, int method, RequestForWhat requestForWhat) {
 		this.url = url;
+		this.requestForWhat = requestForWhat;
 		this.method = method;
 	}
 
@@ -62,11 +86,15 @@ public class RequestVo {
 	 *            请求地址
 	 * @param method
 	 *            请求方法
+	 * @param RequestForWhat
+	 *            请求的目的是获取什么类型的数据（STRING, GSON, XML, JSON）
 	 * @param tag
 	 *            请求标签
 	 */
-	public RequestVo(String url, RequestMethod method, String tag) {
+	public RequestVo(String url, int method, RequestForWhat requestForWhat,
+			String tag) {
 		this.tag = tag;
+		this.requestForWhat = requestForWhat;
 		this.url = url;
 		this.method = method;
 	}
@@ -77,12 +105,15 @@ public class RequestVo {
 	 *            请求地址
 	 * @param method
 	 *            请求方法
+	 * @param RequestForWhat
+	 *            请求的目的是获取什么类型的数据（STRING, GSON, XML, JSON）
 	 * @param requestParams
-	 *            post的请求参数 null表示不传递参数
+	 *           post的请求参数 null表示不传递参数（GET请求，此处写null）
 	 */
-	public RequestVo(String url, RequestMethod method,
+	public RequestVo(String url, int method, RequestForWhat requestForWhat,
 			Map<String, String> requestParams) {
 		this.requestParams = requestParams;
+		this.requestForWhat = requestForWhat;
 		this.url = url;
 		this.method = method;
 	}
@@ -93,13 +124,16 @@ public class RequestVo {
 	 *            请求地址
 	 * @param method
 	 *            请求方法
+	 * @param RequestForWhat
+	 *            请求的目的是获取什么类型的数据（STRING, GSON, XML, JSON）
 	 * @param requestParams
-	 *            post的请求参数 null表示不传递参数
+	 *            post的请求参数 null表示不传递参数（GET请求，此处写null）
 	 * @param tag
 	 *            请求标签
 	 */
-	public RequestVo(String url, RequestMethod method,
+	public RequestVo(String url, int method, RequestForWhat requestForWhat,
 			Map<String, String> requestParams, String tag) {
+		this.requestForWhat = requestForWhat;
 		this.requestParams = requestParams;
 		this.tag = tag;
 		this.url = url;
@@ -112,20 +146,52 @@ public class RequestVo {
 	 *            请求地址
 	 * @param method
 	 *            请求方法
+	 * @param RequestForWhat
+	 *            请求的目的是获取什么类型的数据（STRING, GSON, XML, JSON）
 	 * @param requestParams
-	 *            post的请求参数 null表示不传递参数
+	 *            post的请求参数 null表示不传递参数（GET请求，此处写null）
 	 * @param tag
 	 *            请求标签
 	 * @param requestHeaders
 	 *            请求头 null表示不添加请求头
 	 */
-	public RequestVo(String url, RequestMethod method,
+	public RequestVo(String url, int method, RequestForWhat requestForWhat,
 			Map<String, String> requestParams, String tag,
 			Map<String, String> requestHeaders) {
+		this.requestForWhat = requestForWhat;
 		this.requestHeaders = requestHeaders;
 		this.requestParams = requestParams;
 		this.tag = tag;
 		this.url = url;
 		this.method = method;
+	}
+
+	/**
+	 * 
+	 * @param url
+	 *            请求地址
+	 * @param method
+	 *            请求方法
+	 * @param RequestForWhat
+	 *            请求的目的是获取什么类型的数据（STRING, GSON, XML, JSON）
+	 * @param requestParams
+	 *            post的请求参数 null表示不传递参数（GET请求，此处写null）
+	 * @param tag
+	 *            请求标签
+	 * @param requestHeaders
+	 *            请求头 null表示不添加请求头
+	 * @param callBack
+	 *            请求后的回调，在这里处理请求回来的结果或异常.null表示不处理请求结果
+	 */
+	public RequestVo(String url, int method, RequestForWhat requestForWhat,
+			Map<String, String> requestParams, String tag,
+			Map<String, String> requestHeaders, CallBack callBack) {
+		this.requestForWhat = requestForWhat;
+		this.requestHeaders = requestHeaders;
+		this.requestParams = requestParams;
+		this.tag = tag;
+		this.url = url;
+		this.method = method;
+		this.callBack=callBack;
 	}
 }
