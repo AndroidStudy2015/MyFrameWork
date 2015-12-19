@@ -1,16 +1,22 @@
 package com.example.myframework.net;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Map;
 
+import android.util.Log;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request.Method;
 import com.android.volley.Response;
+import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.example.myframework.application.MyApplication;
+import com.example.myframework.net.Weather.WeatherInfo;
 
 public class NetUtils3 {
 	/**
@@ -19,15 +25,15 @@ public class NetUtils3 {
 	 * @param requestVo
 	 */
 	public static void execute(final RequestVo requestVo) {
-		switch (requestVo.requestForWhat) {
+		switch (requestVo.getRequestForWhat()) {
 		case STRING:
 			STRINGRequest(requestVo);
 			break;
 
 		case GSON:
-//			GSONRequest(requestVo);
+			GSONRequest(requestVo);
 			break;
-			
+
 		case XML:
 		case JSON:
 			break;
@@ -37,13 +43,17 @@ public class NetUtils3 {
 
 	private static void STRINGRequest(final RequestVo requestVo) {
 
-		StringRequest request = new StringRequest(requestVo.method,
-				requestVo.url, new Listener<String>() {
+		StringRequest request = new StringRequest(requestVo.getMethod(),
+				requestVo.getUrl(), new Listener<String>() {
 
 					@Override
 					public void onResponse(String response) {
-						if (requestVo.getCallBack() != null) {// ★注意这里非空判断，如果不考虑请求的结果，可以不初始化setCallBack
-							requestVo.getCallBack().onSuccess(response);
+						if (requestVo.getStringCallBack() != null) {// ★注意这里非空判断，如果不考虑请求的结果，可以不初始化setCallBack
+							Log.e("STRINGRequest",
+									(requestVo.getMethod() == Method.GET ? "GET请求："
+											: "POST请求：")
+											+ response);
+							requestVo.getStringCallBack().onSuccess(response);
 						}
 
 					}
@@ -51,8 +61,8 @@ public class NetUtils3 {
 
 					@Override
 					public void onErrorResponse(VolleyError error) {
-						if (requestVo.getCallBack() != null) {// ★注意这里非空判断，如果不考虑请求的结果，可以不初始化setCallBack
-							requestVo.getCallBack().onFailure(error);
+						if (requestVo.getStringCallBack() != null) {// ★注意这里非空判断，如果不考虑请求的结果，可以不初始化setCallBack
+							requestVo.getStringCallBack().onFailure(error);
 						}
 					}
 				}) {
@@ -60,11 +70,11 @@ public class NetUtils3 {
 			@Override
 			protected Map<String, String> getParams() throws AuthFailureError {
 
-				if (requestVo.requestParams == null
-						|| requestVo.requestParams.size() == 0) {
+				if (requestVo.getRequestParams() == null
+						|| requestVo.getRequestParams().size() == 0) {
 					return null;
 				}
-				return requestVo.requestParams;
+				return requestVo.getRequestParams();
 			}
 
 			// ★设置请求头(没添加请求头时，返回null报错，不知为什么，先注释掉+++++
@@ -72,12 +82,12 @@ public class NetUtils3 {
 			// 而你又返回一个null的map，所以报错，解决方法是如果你没给headers，
 			// 就返回super.getHeaders())
 			@Override
-			public Map<String,String> getHeaders() throws AuthFailureError {
-				if (requestVo.requestHeaders == null
-						|| requestVo.requestHeaders.size() == 0) {
+			public Map<String, String> getHeaders() throws AuthFailureError {
+				if (requestVo.getRequestHeaders() == null
+						|| requestVo.getRequestHeaders().size() == 0) {
 					return super.getHeaders();// ★你没设置，就返回父类设置好的
 				}
-				return requestVo.requestHeaders;
+				return requestVo.getRequestHeaders();
 			}
 
 			// 设置超时时间（默认是2.5秒）、重试次数（一般为1次，表示不让重试）、回避指数（这个参数不懂）
@@ -89,10 +99,39 @@ public class NetUtils3 {
 				return retryPolicy;
 			}
 		};
-		if (requestVo.tag != null && !("".equals(requestVo.tag))) {
-			request.setTag(requestVo.tag);
+		if (requestVo.getTag() != null && !("".equals(requestVo.getTag()))) {
+			request.setTag(requestVo.getTag());
 		}
 		MyApplication.volleyRequestQueue.add(request);
 	}
-	
+
+	// *******************************************************************************************************
+	private static <T> void GSONRequest(final RequestVo requestVo) {
+//		Type type = ((ParameterizedType) getClass().getGenericSuperclass())
+//				.getActualTypeArguments()[0];
+
+		GsonRequest<Object> gsonRequest = new GsonRequest<Object>(
+				requestVo.getUrl(), requestVo.getClz(), new Listener<Object>() {
+
+					@Override
+					public void onResponse(Object o) {
+						// TODO Auto-generated method stub
+						Log.e("GsonRequest",
+								(requestVo.getMethod() == Method.GET ? "GET请求："
+										: "POST请求：") + o.toString());
+						 requestVo.getGsonCallback().onSuccess(o);
+					}
+				}, new ErrorListener() {
+
+					@Override
+					public void onErrorResponse(VolleyError error) {
+						// TODO Auto-generated method stub
+						Log.e("ccccccccc", "错了");
+						requestVo.getGsonCallback().onFailure(error);
+					}
+				});
+		MyApplication.volleyRequestQueue.add(gsonRequest);
+
+	}
+
 }

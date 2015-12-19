@@ -1,5 +1,6 @@
 package com.example.myframework;
 
+
 import java.util.HashMap;
 
 import android.app.Activity;
@@ -11,10 +12,14 @@ import android.widget.TextView;
 
 import com.android.volley.VolleyError;
 import com.android.volley.Request.Method;
-import com.example.myframework.net.CallBack;
+import com.example.myframework.net.NetUtils2;
+import com.example.myframework.net.StringCallBack;
+import com.example.myframework.net.GsonCallback;
 import com.example.myframework.net.NetUtils3;
 import com.example.myframework.net.RequestVo;
+import com.example.myframework.net.Weather;
 import com.example.myframework.net.RequestVo.RequestForWhat;
+import com.example.myframework.net.Weather.WeatherInfo;
 
 public class MainActivity extends Activity {
 
@@ -27,34 +32,45 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		TextView tv = (TextView) findViewById(R.id.tv);
-		url = "http://api.stay4it.com/v1/public/core/";
+//		url = "http://api.stay4it.com/v1/public/core/";
+		url = "http://www.weather.com.cn/data/sk/101010100.html";
 
 		tv.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				// get
-//				requestVo2 = new RequestVo(
-//						"http://flash.weather.com.cn/wmaps/xml/china.xml",
-//						RequestForWhat.STRING);
-//				requestVo2.setCallBack(new CallBack() {
+				testGsonGet();
 //
-//					@Override
-//					public void onSuccess(String response) {
-//						// TODO Auto-generated method stub
-//						Log.e("我在外面",
-//								(requestVo.method == Method.GET ? "GET请求："
-//										: "POST请求：") + response);
-//					}
+//				testStringPost();
+//				// NetUtils2.volley_Get_json();
+//				 NetUtils2.gsonTest();
 //
-//					@Override
-//					public void onFailure(VolleyError error) {
-//						// TODO Auto-generated method stub
-//						Log.e("我在外面", "网络请求失败");
-//					}
-//				});
-//				NetUtils3.execute(requestVo2);
+			}
 
+			private void testGsonGet() {
+				// get
+				requestVo2 = new RequestVo(url, Method.GET, RequestForWhat.GSON, null, "111", null, null, new GsonCallback() {
+					
+					@Override
+					public void onSuccess(Object o) {
+						// TODO Auto-generated method stub
+						WeatherInfo weatherInfo = ((Weather) o).getWeatherinfo();
+						Log.e("gsonRequest", "city is " + weatherInfo.getCity());
+						Log.e("gsonRequest", "temp is " + weatherInfo.getTemp());
+						Log.e("gsonRequest", "time is " + weatherInfo.getTime());
+					}
+
+					@Override
+					public void onFailure(VolleyError error) {
+						// TODO Auto-generated method stub
+						error.printStackTrace();
+					}
+				});
+				requestVo2.setClz(Weather.class);
+				NetUtils3.execute(requestVo2);
+			}
+
+			private void testStringPost() {
 				// post
 				// 1.准备请求参数
 				HashMap<String, String> requestParams = new HashMap<String, String>();
@@ -64,13 +80,13 @@ public class MainActivity extends Activity {
 				// 2.创建requestVo
 				requestVo = new RequestVo(url, Method.POST,
 						RequestForWhat.STRING, requestParams, "1", null,
-						new CallBack() {
+						new StringCallBack() {
 
 							@Override
 							public void onSuccess(String response) {
 								// TODO Auto-generated method stub
 								Log.e("我在外面",
-										(requestVo.method == Method.GET ? "GET请求："
+										(requestVo.getMethod() == Method.GET ? "GET请求："
 												: "POST请求：")
 												+ response);
 							}
@@ -80,13 +96,10 @@ public class MainActivity extends Activity {
 								// TODO Auto-generated method stub
 								Log.e("我在外面", "网络请求失败");
 							}
-						});
+						},null);
 
 				// 3.执行execute
 				NetUtils3.execute(requestVo);
-				// NetUtils2.volley_Get_json();
-				// NetUtils2.gsonTest();
-
 			}
 		});
 	}
