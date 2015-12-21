@@ -1,4 +1,4 @@
-package com.example.myframework.net;
+package com.example.myframework.net.core;
 
 import java.io.UnsupportedEncodingException;
 

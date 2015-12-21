@@ -15,7 +15,10 @@ import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.example.myframework.application.MyApplication;
-import com.example.myframework.net.Weather.WeatherInfo;
+import com.example.myframework.javabean.Weather;
+import com.example.myframework.javabean.Weather.WeatherInfo;
+import com.example.myframework.net.core.GsonRequest;
+import com.example.myframework.net.core.XMLRequest;
 
 public class NetUtils2 {
 public static void xmlTest(){

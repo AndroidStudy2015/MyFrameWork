@@ -1,4 +1,4 @@
-package com.example.myframework.net;
+package com.example.myframework.net.core;
 
 import java.util.Map;
 
@@ -6,6 +6,7 @@ import com.android.volley.Request.Method;
 
 /**
  * 所有的请求需要的数据都归于这个类中
+ * 
  * @param <T>
  * 
  */
@@ -22,7 +23,7 @@ public class RequestVo<T> {
 	/**
 	 * 某个网络请求的tag，用于标记该请求，当想要取消该请求是使用
 	 */
-	private String tag;
+	private String requestTag;
 
 	/**
 	 * 需要增加的请求参数，多个请求参数存在map集合里
@@ -42,16 +43,15 @@ public class RequestVo<T> {
 	 * 请求想得到什么类型的数据：STRING, GSON, XML, JSON
 	 */
 	private RequestForWhat requestForWhat;
-	private StringCallBack stringCallBack;
-	private GsonCallback<T> gsonCallback;
-	private Class<T> clz;
+	private RequestCallBack<T> requestCallBack;
+	private Class<T> clzz;
 
-	public Class<T> getClz() {
-		return clz;
+	public Class<T> getClzz() {
+		return clzz;
 	}
 
-	public void setClz(Class<T> clz) {
-		this.clz = clz;
+	public void setClzz(Class<T> clzz) {
+		this.clzz = clzz;
 	}
 
 	public String getUrl() {
@@ -63,11 +63,11 @@ public class RequestVo<T> {
 	}
 
 	public String getTag() {
-		return tag;
+		return requestTag;
 	}
 
-	public void setTag(String tag) {
-		this.tag = tag;
+	public void setTag(String requestTag) {
+		this.requestTag = requestTag;
 	}
 
 	public Map<String, String> getRequestParams() {
@@ -102,20 +102,12 @@ public class RequestVo<T> {
 		this.requestForWhat = requestForWhat;
 	}
 
-	public StringCallBack getStringCallBack() {
-		return stringCallBack;
+	public RequestCallBack<T> getCallBack() {
+		return requestCallBack;
 	}
 
-	public void setStringCallBack(StringCallBack stringCallBack) {
-		this.stringCallBack = stringCallBack;
-	}
-
-	public GsonCallback<T> getGsonCallback() {
-		return gsonCallback;
-	}
-
-	public void setGsonCallback(GsonCallback<T> gsonCallback) {
-		this.gsonCallback = gsonCallback;
+	public void setCallBack(RequestCallBack<T> requestCallBack) {
+		this.requestCallBack = requestCallBack;
 	}
 
 	/**
@@ -123,7 +115,7 @@ public class RequestVo<T> {
 	 * 
 	 * @param url
 	 *            只是传递url，默认为GET方法
-	 * @param RequestForWhat
+	 * @param requestForWhat
 	 *            请求的目的是获取什么类型的数据（STRING, GSON, XML, JSON）
 	 */
 	public RequestVo(String url, RequestForWhat requestForWhat) {
@@ -138,7 +130,7 @@ public class RequestVo<T> {
 	 *            请求地址
 	 * @param method
 	 *            请求方法
-	 * @param RequestForWhat
+	 * @param requestForWhat
 	 *            请求的目的是获取什么类型的数据（STRING, GSON, XML, JSON）
 	 */
 	public RequestVo(String url, int method, RequestForWhat requestForWhat) {
@@ -153,7 +145,7 @@ public class RequestVo<T> {
 	 *            请求地址
 	 * @param method
 	 *            请求方法
-	 * @param RequestForWhat
+	 * @param requestForWhat
 	 *            请求的目的是获取什么类型的数据（STRING, GSON, XML, JSON）
 	 * @param requestParams
 	 *            post的请求参数 null表示不传递参数（GET请求，此处写null）
@@ -172,18 +164,18 @@ public class RequestVo<T> {
 	 *            请求地址
 	 * @param method
 	 *            请求方法
-	 * @param RequestForWhat
+	 * @param requestForWhat
 	 *            请求的目的是获取什么类型的数据（STRING, GSON, XML, JSON）
 	 * @param requestParams
 	 *            post的请求参数 null表示不传递参数（GET请求，此处写null）
-	 * @param tag
+	 * @param requestTag
 	 *            请求标签
 	 */
 	public RequestVo(String url, int method, RequestForWhat requestForWhat,
-			Map<String, String> requestParams, String tag) {
+			Map<String, String> requestParams, String requestTag) {
 		this.requestForWhat = requestForWhat;
 		this.requestParams = requestParams;
-		this.tag = tag;
+		this.requestTag = requestTag;
 		this.url = url;
 		this.method = method;
 	}
@@ -194,30 +186,29 @@ public class RequestVo<T> {
 	 *            请求地址
 	 * @param method
 	 *            请求方法
-	 * @param RequestForWhat
+	 * @param requestForWhat
 	 *            请求的目的是获取什么类型的数据（STRING, GSON, XML, JSON）
 	 * @param requestParams
 	 *            post的请求参数 null表示不传递参数（GET请求，此处写null）
-	 * @param tag
+	 * @param requestTag
 	 *            请求标签
+	 * @param clzz
+	 *            如果是Gosn请求，这里写要转换成的javabean类型，其他类型的请求结果的话，这里写null
 	 * @param requestHeaders
 	 *            请求头 null表示不添加请求头
-	 * @param stringCallBack
-	 *            String请求后的回调，在这里处理请求回来的结果或异常.null表示不处理请求结果
-	 * @param gsonCallback
-	 *            Gson请求后的回调，在这里处理请求回来的结果或异常.null表示不处理请求结果
+	 * @param requestCallBack
+	 *            所有请求后的回调，在这里处理请求回来的结果或异常.null表示不处理请求结果
 	 */
 	public RequestVo(String url, int method, RequestForWhat requestForWhat,
-			Map<String, String> requestParams, String tag,
-			Map<String, String> requestHeaders, StringCallBack stringCallBack,
-			GsonCallback<T> gsonCallback) {
+			Map<String, String> requestParams, String requestTag, Class<T> clzz,
+			Map<String, String> requestHeaders, RequestCallBack<T> requestCallBack) {
 		this.requestForWhat = requestForWhat;
 		this.requestHeaders = requestHeaders;
 		this.requestParams = requestParams;
-		this.tag = tag;
+		this.requestTag = requestTag;
+		this.clzz = clzz;
 		this.url = url;
 		this.method = method;
-		this.stringCallBack = stringCallBack;
-		this.gsonCallback = gsonCallback;
+		this.requestCallBack = requestCallBack;
 	}
 }

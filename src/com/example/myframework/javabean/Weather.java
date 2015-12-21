@@ -1,4 +1,4 @@
-package com.example.myframework.net;
+package com.example.myframework.javabean;
 
 public class Weather {  
 	  
