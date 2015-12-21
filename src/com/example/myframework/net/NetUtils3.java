@@ -1,7 +1,5 @@
 package com.example.myframework.net;
 
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.Map;
 
 import android.util.Log;
@@ -16,15 +14,15 @@ import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.example.myframework.application.MyApplication;
-import com.example.myframework.net.Weather.WeatherInfo;
 
 public class NetUtils3 {
 	/**
 	 * 所有网络请求都只有这一个方法，入口
+	 * @param <T>
 	 * 
 	 * @param requestVo
 	 */
-	public static void execute(final RequestVo requestVo) {
+	public static <T> void execute(final RequestVo<T> requestVo) {
 		switch (requestVo.getRequestForWhat()) {
 		case STRING:
 			STRINGRequest(requestVo);
@@ -41,7 +39,7 @@ public class NetUtils3 {
 
 	}
 
-	private static void STRINGRequest(final RequestVo requestVo) {
+	private static <T> void STRINGRequest(final RequestVo<T> requestVo) {
 
 		StringRequest request = new StringRequest(requestVo.getMethod(),
 				requestVo.getUrl(), new Listener<String>() {
@@ -106,20 +104,20 @@ public class NetUtils3 {
 	}
 
 	// *******************************************************************************************************
-	private static <T> void GSONRequest(final RequestVo requestVo) {
+	private static  <T> void GSONRequest(final RequestVo<T> requestVo) {
 //		Type type = ((ParameterizedType) getClass().getGenericSuperclass())
 //				.getActualTypeArguments()[0];
 
-		GsonRequest<Object> gsonRequest = new GsonRequest<Object>(
-				requestVo.getUrl(), requestVo.getClz(), new Listener<Object>() {
+		GsonRequest<T> gsonRequest = new GsonRequest<T>(
+				requestVo.getUrl(), requestVo.getClz(), new Listener<T>() {
 
 					@Override
-					public void onResponse(Object o) {
+					public void onResponse(T t) {
 						// TODO Auto-generated method stub
 						Log.e("GsonRequest",
 								(requestVo.getMethod() == Method.GET ? "GET请求："
-										: "POST请求：") + o.toString());
-						 requestVo.getGsonCallback().onSuccess(o);
+										: "POST请求：") + t.toString());
+						 requestVo.getGsonCallback().onSuccess(t);
 					}
 				}, new ErrorListener() {
 

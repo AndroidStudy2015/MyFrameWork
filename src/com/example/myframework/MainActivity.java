@@ -23,8 +23,8 @@ import com.example.myframework.net.Weather.WeatherInfo;
 
 public class MainActivity extends Activity {
 
-	private RequestVo requestVo2;
-	private RequestVo requestVo;
+	private RequestVo<Weather> requestVo2;
+	private RequestVo<String> requestVo;
 	private String url;
 
 	@Override
@@ -49,12 +49,12 @@ public class MainActivity extends Activity {
 
 			private void testGsonGet() {
 				// get
-				requestVo2 = new RequestVo(url, Method.GET, RequestForWhat.GSON, null, "111", null, null, new GsonCallback() {
+				requestVo2 = new RequestVo<Weather>(url, Method.GET, RequestForWhat.GSON, null, "111", null, null, new GsonCallback<Weather>() {
 					
 					@Override
-					public void onSuccess(Object o) {
+					public void onSuccess(Weather t) {
 						// TODO Auto-generated method stub
-						WeatherInfo weatherInfo = ((Weather) o).getWeatherinfo();
+						WeatherInfo weatherInfo = t.getWeatherinfo();
 						Log.e("gsonRequest", "city is " + weatherInfo.getCity());
 						Log.e("gsonRequest", "temp is " + weatherInfo.getTemp());
 						Log.e("gsonRequest", "time is " + weatherInfo.getTime());
@@ -78,7 +78,7 @@ public class MainActivity extends Activity {
 				requestParams.put("account", "stay4it");
 				requestParams.put("password", "123456");
 				// 2.创建requestVo
-				requestVo = new RequestVo(url, Method.POST,
+				requestVo = new RequestVo<String>(url, Method.POST,
 						RequestForWhat.STRING, requestParams, "1", null,
 						new StringCallBack() {
 

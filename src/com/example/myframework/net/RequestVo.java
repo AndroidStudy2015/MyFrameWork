@@ -6,9 +6,10 @@ import com.android.volley.Request.Method;
 
 /**
  * 所有的请求需要的数据都归于这个类中
+ * @param <T>
  * 
  */
-public class RequestVo {
+public class RequestVo<T> {
 
 	public enum RequestForWhat {
 		STRING, GSON, XML, JSON
@@ -42,14 +43,14 @@ public class RequestVo {
 	 */
 	private RequestForWhat requestForWhat;
 	private StringCallBack stringCallBack;
-	private GsonCallback gsonCallback;
-	private Class clz;
+	private GsonCallback<T> gsonCallback;
+	private Class<T> clz;
 
-	public Class getClz() {
+	public Class<T> getClz() {
 		return clz;
 	}
 
-	public void setClz(Class clz) {
+	public void setClz(Class<T> clz) {
 		this.clz = clz;
 	}
 
@@ -109,11 +110,11 @@ public class RequestVo {
 		this.stringCallBack = stringCallBack;
 	}
 
-	public GsonCallback getGsonCallback() {
+	public GsonCallback<T> getGsonCallback() {
 		return gsonCallback;
 	}
 
-	public void setGsonCallback(GsonCallback gsonCallback) {
+	public void setGsonCallback(GsonCallback<T> gsonCallback) {
 		this.gsonCallback = gsonCallback;
 	}
 
@@ -209,7 +210,7 @@ public class RequestVo {
 	public RequestVo(String url, int method, RequestForWhat requestForWhat,
 			Map<String, String> requestParams, String tag,
 			Map<String, String> requestHeaders, StringCallBack stringCallBack,
-			GsonCallback gsonCallback) {
+			GsonCallback<T> gsonCallback) {
 		this.requestForWhat = requestForWhat;
 		this.requestHeaders = requestHeaders;
 		this.requestParams = requestParams;
