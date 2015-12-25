@@ -1,7 +1,16 @@
 package com.example.myframework.net.core;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Map;
 
+import android.content.Context;
+import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.Uri;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.android.volley.AuthFailureError;
@@ -13,7 +22,8 @@ import com.android.volley.Response.Listener;
 import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
-import com.example.myframework.application.MyApplication;
+import com.example.myframework.application.MyApp;
+import com.example.myframework.utils.LogUtils;
 
 public class NetUtils {
 	/**
@@ -31,10 +41,6 @@ public class NetUtils {
 
 		case GSON:
 			GSONRequest(requestVo);
-			break;
-
-		case XML:
-		case JSON:
 			break;
 		}
 	}
@@ -74,7 +80,7 @@ public class NetUtils {
 					}
 				}) {
 			/**
-			 *  请求体添加post请求参数，★如果指定get或者post方法，默认为get方法，则此方法不执行★
+			 * 请求体添加post请求参数，★如果指定get或者post方法，默认为get方法，则此方法不执行★
 			 */
 			@Override
 			protected Map<String, String> getParams() throws AuthFailureError {
@@ -109,10 +115,13 @@ public class NetUtils {
 				return retryPolicy;
 			}
 		};
-		if (requestVo.getTag() != null && !("".equals(requestVo.getTag()))) {
-			request.setTag(requestVo.getTag());
+
+		if (requestVo.getRequestTag() != null
+				&& !("".equals(requestVo.getRequestTag()))) {
+			request.setTag(requestVo.getRequestTag());
 		}
-		MyApplication.volleyRequestQueue.add(request);
+
+		MyApp.getRequestQueue().add(request);
 	}
 
 	// *******************************************************************************************************
@@ -158,8 +167,9 @@ public class NetUtils {
 					}
 				}) {
 			/**
-			 *  请求体添加post请求参数，★如果指定get或者post方法，默认为get方法，则此方法不执行★<br>
-			 *  如果上边的 new GsonRequest<T>()里面，不加入★requestVo.getMethod()★这个参数，本方法（即getParams）就不会执行
+			 * 请求体添加post请求参数，★如果指定get或者post方法，默认为get方法，则此方法不执行★<br>
+			 * 如果上边的 new GsonRequest<T>()里面，不加入★requestVo.getMethod()★这个参数，本方法（
+			 * 即getParams）就不会执行
 			 */
 			@Override
 			protected Map<String, String> getParams() throws AuthFailureError {
@@ -194,12 +204,103 @@ public class NetUtils {
 				return retryPolicy;
 			}
 		};
-		if (requestVo.getTag() != null && !("".equals(requestVo.getTag()))) {
-			request.setTag(requestVo.getTag());
-		}
-		;
-		MyApplication.volleyRequestQueue.add(request);
 
+		if (requestVo.getRequestTag() != null
+				&& !("".equals(requestVo.getRequestTag()))) {
+			request.setTag(requestVo.getRequestTag());
+		}
+		MyApp.getRequestQueue().add(request);
+
+	}
+
+	/**
+	 * wifi是否连接
+	 * 
+	 * @param context
+	 * @return wifi是否连接
+	 */
+	public static boolean isWifiConnected(Context context) {
+		if (context != null) {
+			ConnectivityManager mConnectivityManager = (ConnectivityManager) context
+					.getSystemService(Context.CONNECTIVITY_SERVICE);
+			NetworkInfo mWiFiNetworkInfo = mConnectivityManager
+					.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+			if (mWiFiNetworkInfo != null) {
+				return mWiFiNetworkInfo.isAvailable();
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * 是否能上网
+	 * 
+	 * @param context
+	 * @return 是否能上网
+	 */
+	public static boolean hasConnectedNetwork(Context context) {
+		ConnectivityManager connectivity = (ConnectivityManager) context
+				.getSystemService("connectivity");
+		if (connectivity != null) {
+			NetworkInfo[] info = connectivity.getAllNetworkInfo();
+			if (info != null) {
+				for (int i = 0; i < info.length; i++) {
+					if (info[i].getState() == NetworkInfo.State.CONNECTED) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * 是否是wifi网络
+	 * 
+	 * @param mContext
+	 *            上下文
+	 * @return 是否是wifi网络
+	 */
+	public static boolean isWifi(Context mContext) {
+		ConnectivityManager connectivityManager = (ConnectivityManager) mContext
+				.getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo activeNetInfo = connectivityManager.getActiveNetworkInfo();
+		if (activeNetInfo != null
+				&& activeNetInfo.getType() == ConnectivityManager.TYPE_WIFI) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * 写入本地字符串进文件
+	 * 
+	 * @param path
+	 *            路径
+	 * @param content
+	 *            内容
+	 * @throws IOException
+	 */
+	public static void wirteJsonToLocal(String path, String content)
+			throws IOException {
+		File file = new File(path);
+		if (file.exists()) {
+			file.delete();
+		}
+		FileOutputStream out = null;
+		try {
+			LogUtils.d("path=" + path);
+			out = new FileOutputStream(file);
+			byte[] bytes = content.getBytes("UTF-8");
+			out.write(bytes);
+		} catch (Exception e) {
+			LogUtils.d(e.toString());
+			e.printStackTrace();
+		} finally {
+			if (out != null) {
+				out.close();
+			}
+		}
 	}
 
 }

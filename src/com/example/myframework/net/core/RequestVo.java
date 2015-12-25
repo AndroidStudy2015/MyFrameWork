@@ -11,9 +11,14 @@ import com.android.volley.Request.Method;
  * 
  */
 public class RequestVo<T> {
-
+	/**
+	 * 因为XML, JSON用的不多，暂时只支持STRING, GSON
+	 * 
+	 * @author kangou
+	 * 
+	 */
 	public enum RequestForWhat {
-		STRING, GSON, XML, JSON
+		STRING, GSON
 	}
 
 	/**
@@ -40,11 +45,22 @@ public class RequestVo<T> {
 	 */
 	private int method;
 	/**
-	 * 请求想得到什么类型的数据：STRING, GSON, XML, JSON
+	 * 请求想得到什么类型的数据：STRING, GSON
 	 */
 	private RequestForWhat requestForWhat;
+	/**
+	 * 请求网络之后的回调
+	 */
 	private RequestCallBack<T> requestCallBack;
+	/**
+	 * 当返回结果是Gson时（必填此项），表示所请求的json所对应的类；<br>
+	 * 如果想要返回结果是String，此处填写null
+	 */
 	private Class<T> clzz;
+	/**
+	 * 是否缓存到本地
+	 */
+	private boolean isSaveLoacal=true;
 
 	public Class<T> getClzz() {
 		return clzz;
@@ -62,11 +78,11 @@ public class RequestVo<T> {
 		this.url = url;
 	}
 
-	public String getTag() {
+	public String getRequestTag() {
 		return requestTag;
 	}
 
-	public void setTag(String requestTag) {
+	public void setRequestTag(String requestTag) {
 		this.requestTag = requestTag;
 	}
 
@@ -110,13 +126,21 @@ public class RequestVo<T> {
 		this.requestCallBack = requestCallBack;
 	}
 
+	public boolean isSaveLoacal() {
+		return isSaveLoacal;
+	}
+
+	public void setSaveLoacal(boolean isSaveLoacal) {
+		this.isSaveLoacal = isSaveLoacal;
+	}
+
 	/**
 	 * ·
 	 * 
 	 * @param url
 	 *            只是传递url，默认为GET方法
 	 * @param requestForWhat
-	 *            请求的目的是获取什么类型的数据（STRING, GSON, XML, JSON）
+	 *            请求的目的是获取什么类型的数据（STRING, GSON）
 	 */
 	public RequestVo(String url, RequestForWhat requestForWhat) {
 		this.url = url;
@@ -131,7 +155,7 @@ public class RequestVo<T> {
 	 * @param method
 	 *            请求方法
 	 * @param requestForWhat
-	 *            请求的目的是获取什么类型的数据（STRING, GSON, XML, JSON）
+	 *            请求的目的是获取什么类型的数据（STRING, GSON）
 	 */
 	public RequestVo(String url, int method, RequestForWhat requestForWhat) {
 		this.url = url;
@@ -146,7 +170,7 @@ public class RequestVo<T> {
 	 * @param method
 	 *            请求方法
 	 * @param requestForWhat
-	 *            请求的目的是获取什么类型的数据（STRING, GSON, XML, JSON）
+	 *            请求的目的是获取什么类型的数据（STRING, GSON）
 	 * @param requestParams
 	 *            post的请求参数 null表示不传递参数（GET请求，此处写null）
 	 */
@@ -165,7 +189,7 @@ public class RequestVo<T> {
 	 * @param method
 	 *            请求方法
 	 * @param requestForWhat
-	 *            请求的目的是获取什么类型的数据（STRING, GSON, XML, JSON）
+	 *            请求的目的是获取什么类型的数据（STRING, GSON）
 	 * @param requestParams
 	 *            post的请求参数 null表示不传递参数（GET请求，此处写null）
 	 * @param requestTag
@@ -187,7 +211,7 @@ public class RequestVo<T> {
 	 * @param method
 	 *            请求方法
 	 * @param requestForWhat
-	 *            请求的目的是获取什么类型的数据（STRING, GSON, XML, JSON）
+	 *            请求的目的是获取什么类型的数据（STRING, GSON）
 	 * @param requestParams
 	 *            post的请求参数 null表示不传递参数（GET请求，此处写null）
 	 * @param requestTag
@@ -200,8 +224,9 @@ public class RequestVo<T> {
 	 *            所有请求后的回调，在这里处理请求回来的结果或异常.null表示不处理请求结果
 	 */
 	public RequestVo(String url, int method, RequestForWhat requestForWhat,
-			Map<String, String> requestParams, String requestTag, Class<T> clzz,
-			Map<String, String> requestHeaders, RequestCallBack<T> requestCallBack) {
+			Map<String, String> requestParams, String requestTag,
+			Class<T> clzz, Map<String, String> requestHeaders,
+			RequestCallBack<T> requestCallBack) {
 		this.requestForWhat = requestForWhat;
 		this.requestHeaders = requestHeaders;
 		this.requestParams = requestParams;
@@ -211,4 +236,5 @@ public class RequestVo<T> {
 		this.method = method;
 		this.requestCallBack = requestCallBack;
 	}
+
 }

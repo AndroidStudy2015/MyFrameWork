@@ -4,8 +4,6 @@ import android.widget.TextView;
 
 import com.android.volley.Request.Method;
 import com.example.myframework.javabean.StayPost;
-import com.example.myframework.javabean.Weather;
-import com.example.myframework.net.core.RequestCallBack;
 import com.example.myframework.net.core.RequestVo;
 import com.example.myframework.net.core.RequestVo.RequestForWhat;
 import com.example.myframework.net.requestCallBack.Get4StringRequestCallBack;
